@@ -1,17 +1,19 @@
 //
-//  UnsplashPhoto.swift
+//  UnplashTopic.swift
 //  UnsplashApp”
 //
-//  Created by ROUSSEL Arnaud on 04/12/2024.
+//  Created by ROUSSEL Arnaud on 07/01/2025.
 //
+
+import Foundation
 
 import Foundation
 import SwiftUI
 
-struct UnsplashPhoto: Codable, Identifiable, Hashable {
+struct UnsplashTopic: Codable, Identifiable, Hashable {
     let id: String
     let slug: String
-    let user: UnsplashUser
+    let user: User
     let urls: UnsplashImageUrls
     
     // Implémentation des méthodes requises par Hashable
@@ -24,6 +26,10 @@ struct UnsplashPhoto: Codable, Identifiable, Hashable {
     }
 }
 
+struct User: Codable {
+    let name: String
+}
+
 struct UnsplashImageUrls: Codable {
     let raw: String
     let full: String
@@ -31,5 +37,3 @@ struct UnsplashImageUrls: Codable {
     let small: String
     let thumb: String
 }
-
-

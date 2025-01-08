@@ -1,59 +1,131 @@
 import SwiftUI
 
 struct ContentView: View {
-    let imageURLs: [String] = [
-        "https://images.unsplash.com/photo-1683009427666-340595e57e43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MXwxfGFsbHwxfHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1563473213013-de2a0133c100?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHwyfHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1490349368154-73de9c9bc37c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHwzfHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1495379572396-5f27a279ee91?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHw0fHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1560850038-f95de6e715b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHw1fHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1695653422715-991ec3a0db7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MXwxfGFsbHw2fHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1547327132-5d20850c62b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHw3fHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1492724724894-7464c27d0ceb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHw4fHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1475694867812-f82b8696d610?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHw5fHx8fHx8MXx8MTcwMzc1OTU1MXw&ixlib=rb-4.0.3&q=80&w=1080",
-        "https://images.unsplash.com/photo-1558816280-dee9521ff364?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MzYyNDN8MHwxfGFsbHwxMHx8fHx8fDF8fDE3MDM3NTk1NTF8&ixlib=rb-4.0.3&q=80&w=1080"
-    ]
-
+    
+    @StateObject var feedState = FeedState()
+    @State private var selectedTopic: UnsplashTopic? = nil
+    
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: [
-                    GridItem(.flexible(minimum: 150), spacing: 8),
-                    GridItem(.flexible(minimum: 150), spacing: 8)
-                ], spacing: 8) {
-                    ForEach(imageURLs, id: \.self) { url in
-                        AsyncImage(url: URL(string: url)) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(12)
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(12)
-                                    .clipped()
-                            case .failure:
-                                Image(systemName: "exclamationmark.triangle")
-                                    .foregroundColor(.red)
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(12)
-                            @unknown default:
-                                EmptyView()
+            VStack {
+                Button(action: {
+                    Task {
+                        await feedState.fetchHomeTopic()
+                        await feedState.fetchHomeFeed()
+                    }
+                },
+                       label: {
+                    Text("Load Data")
+                }
+                )
+                ScrollView(.horizontal) {
+                    HStack(spacing: 10) {
+                        if let topics = feedState.topics {
+                            ForEach(topics, id: \.self) { topic in
+                                NavigationLink(value: topic) {
+                                    VStack(spacing: 2) {
+                                        AsyncImage(url: URL(string: topic.cover_photo.urls.small)) { phase in
+                                            switch phase {
+                                            case .empty:
+                                                ProgressView()
+                                                    .frame(width: 100, height: 50)
+                                                    .cornerRadius(12)
+                                            case .success(let image):
+                                                image
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .frame(width: 100, height: 50)
+                                                    .cornerRadius(12)
+                                                    .clipped()
+                                            case .failure:
+                                                Image(systemName: "exclamationmark.triangle")
+                                                    .foregroundColor(.red)
+                                                    .frame(width: 100, height: 50)
+                                                    .cornerRadius(12)
+                                            @unknown default:
+                                                EmptyView()
+                                            }
+                                        }
+                                        Text(topic.slug)
+                                    }
+                                }
+                            }
+                        } else {
+                            ForEach(0..<10) { _ in
+                                VStack(spacing: 2) {
+                                    Rectangle()
+                                        .frame(width: 100, height: 50)
+                                        .cornerRadius(12)
+                                        .redacted(reason: .placeholder)
+                                        .foregroundColor(.gray)
+                                    Rectangle()
+                                        .frame(width: 80, height: 10)
+                                        .cornerRadius(12)
+                                        .redacted(reason: .placeholder)
+                                        .foregroundColor(.gray)
+                                }
                             }
                         }
                     }
                 }
-                .padding(.horizontal)
+                
+                ScrollView {
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(minimum: 150), spacing: 8),
+                        GridItem(.flexible(minimum: 150), spacing: 8)
+                    ], spacing: 8) {
+                        if let homeFeed = feedState.homeFeed {
+                            ForEach(homeFeed, id: \.self) { photo in
+                                NavigationLink(value: photo){
+                                    AsyncImage(url: URL(string: photo.urls.regular)) { phase in
+                                        switch phase {
+                                        case .empty:
+                                            ProgressView()
+                                                .frame(width: 150, height: 150)
+                                                .cornerRadius(12)
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 150, height: 150)
+                                                .cornerRadius(12)
+                                                .clipped()
+                                        case .failure:
+                                            Image(systemName: "exclamationmark.triangle")
+                                                .foregroundColor(.red)
+                                                .frame(width: 150, height: 150)
+                                                .cornerRadius(12)
+                                        @unknown default:
+                                            EmptyView()
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            ForEach(0..<12) { _ in
+                                Rectangle()
+                                    .frame(width: 150, height: 150)
+                                    .cornerRadius(12)
+                                    .redacted(reason: .placeholder)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                
             }
+            .navigationDestination(for: UnsplashTopic.self) { topic in
+                    TopicView(topic: topic)
+                }
+            .navigationDestination(for: UnsplashPhoto.self) { photo in
+                    PhotoView(photo: photo)
+                }
+            .navigationDestination(for: UnsplashUser.self) { user in
+                    UserView(user: user)
+                }
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .navigationTitle("Feed")
         }
     }
-}
-
-#Preview {
-    ContentView()
 }
