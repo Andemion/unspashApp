@@ -46,6 +46,7 @@
 /* Begin PBXFileReference section */
 		852C96012D2E7ADC001710B6 /* UnplashUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnplashUser.swift; sourceTree = "<group>"; };
 		852C96032D2E7F4D001710B6 /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
+		854392922D2EB4BF00253BA9 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		855614D42D009548000CBB2E /* UnsplashApp”.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "UnsplashApp”.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		855614D72D009548000CBB2E /* UnsplashApp_App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashApp_App.swift; sourceTree = "<group>"; };
 		855614D92D009548000CBB2E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -95,6 +96,7 @@
 		855614CB2D009548000CBB2E = {
 			isa = PBXGroup;
 			children = (
+				854392922D2EB4BF00253BA9 /* .gitignore */,
 				855615012D009E31000CBB2E /* Answers.md */,
 				855614D62D009548000CBB2E /* UnsplashApp” */,
 				855614E72D00954C000CBB2E /* UnsplashApp”Tests */,
